@@ -21,6 +21,11 @@ class ISlackActionContentInfo(IActionContentInfo):
         order=90,
     )
 
+    zenossUrl = schema.TextLine(
+        title=_t(u'Zenoss URL'),
+        order=95,
+    )
+
     proxyUrl = schema.TextLine(
         title=_t(u'Proxy URL'),
         order=100,
@@ -35,4 +40,3 @@ class ISlackActionContentInfo(IActionContentInfo):
         title=_t(u'Proxy password'),
         order=120,
     )
-

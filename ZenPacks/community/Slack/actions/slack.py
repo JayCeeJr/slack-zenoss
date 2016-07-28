@@ -27,14 +27,14 @@ class SlackAction(IActionBase, TargetableAction):
     def execute(self, notification, signal):
         log.debug("Executing %s action", self.name)
         self.setupAction(notification.dmd)
-	
+
         data = _signalToContextDict(
             signal,
             self.options.get('zopeurl'),
             notification,
             self.guidManager
         )
-	sendSlack(notification.content['slackUrl'],notification.content['proxyUrl'],notification.content['proxyUsername'],notification.content['proxyPassword'],**data)
+	sendSlack(notification.content['slackUrl'],notification.content['zenossUrl'],notification.content['proxyUrl'],notification.content['proxyUsername'],notification.content['proxyPassword'],**data)
 
 
     def getActionableTargets(self, target):
@@ -69,18 +69,18 @@ class SlackAction(IActionBase, TargetableAction):
 
     def updateContent(self, content=None, data=None):
         updates = dict()
-	
+
         updates['slackUrl'] = data.get('slackUrl', 'http://www.slack.com')
 
         properties = [
             'slackUrl',
+            'zenossUrl',
             'proxyUrl',
             'proxyUsername',
             'proxyPassword',
         ]
-	
+
         for k in properties:
             updates[k] = data.get(k)
 
         content.update(updates)
-

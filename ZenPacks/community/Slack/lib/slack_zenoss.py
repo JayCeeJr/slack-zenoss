@@ -4,10 +4,11 @@
 #!/usr/bin/env python
 import json
 import httplib2
+import re
 
 from urlparse import urlparse
 
-def sendSlack(slackUrl='http://www.slack.com',proxyUrl=None,proxyUsername=None,proxyPassword=None,**data):
+def sendSlack(slackUrl='http://www.slack.com',zenossUrl=None,proxyUrl=None,proxyUsername=None,proxyPassword=None,**data):
     evt=data['evt']
     device=evt.device
     component=evt.component
@@ -21,7 +22,16 @@ def sendSlack(slackUrl='http://www.slack.com',proxyUrl=None,proxyUsername=None,p
     close_url = data['urls']['closeUrl']
     dev_events_url = data['urls']['eventsUrl']
     reopen_url = data['urls']['reopenUrl']
-    devUrl=data['urls']['deviceUrl'] 
+    devUrl=data['urls']['deviceUrl']
+
+    if zenossUrl:
+        host_regex = '(htt[ps]+://[A-Za-z0-9.:-]+)(.*)'
+        detail_url = zenossUrl + re.match(host_regex, detail_url).group(2)
+        ack_url = zenossUrl + re.match(host_regex, ack_url).group(2)
+        close_url = zenossUrl + re.match(host_regex, close_url).group(2)
+        dev_events_url = zenossUrl + re.match(host_regex, dev_events_url).group(2)
+        reopen_url = zenossUrl + re.match(host_regex, reopen_url).group(2)
+        devUrl = zenossUrl + re.match(host_regex, devUrl).group(2)
 
     # setup the output
     # set the color based on severity
@@ -39,7 +49,7 @@ def sendSlack(slackUrl='http://www.slack.com',proxyUrl=None,proxyUsername=None,p
         color = "good" #green
     else:
         color = ""
-    
+
     if cleared_by is None:
         fields = [{
             "title": "Actions",
@@ -56,7 +66,7 @@ def sendSlack(slackUrl='http://www.slack.com',proxyUrl=None,proxyUsername=None,p
             "value": "Cleared by: " + cleared_by + "\n<" + reopen_url + "|Reopen>",
             "short": False
         }]
-        
+
     attachment = [{
         "fallback": summary,
         "text": summary,
@@ -72,13 +82,12 @@ def sendSlack(slackUrl='http://www.slack.com',proxyUrl=None,proxyUsername=None,p
 	"username":"zenossbot",
         "attachments": attachment
     })
-   
+
     if proxyUrl:
 	parsedUrl=urlparse(proxyUrl)
 	proxyHost=parsedUrl.hostname
 	proxyPort=parsedUrl.port
-	h = httplib2.Http(disable_ssl_certificate_validation=True,proxy_info = httplib2.ProxyInfo(httplib2.socks.PROXY_TYPE_HTTP, proxyHost, proxyPort)) 
+	h = httplib2.Http(disable_ssl_certificate_validation=True,proxy_info = httplib2.ProxyInfo(httplib2.socks.PROXY_TYPE_HTTP, proxyHost, proxyPort))
     else:
     	h = httplib2.Http(disable_ssl_certificate_validation=True)
     (resp, content) = h.request(slackUrl, "POST", body=payload, headers={'content-type':'application/json'} )
-    

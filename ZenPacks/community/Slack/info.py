@@ -14,7 +14,7 @@ class SlackActionContentInfo(ActionContentInfo):
     implements(ISlackActionContentInfo)
 
     slackUrl = ActionFieldProperty(ISlackActionContentInfo, 'slackUrl')
+    zenossUrl = ActionFieldProperty(ISlackActionContentInfo, 'zenossUrl')
     proxyUrl = ActionFieldProperty(ISlackActionContentInfo, 'proxyUrl')
     proxyUsername = ActionFieldProperty(ISlackActionContentInfo, 'proxyUsername')
     proxyPassword = ActionFieldProperty(ISlackActionContentInfo, 'proxyPassword')
-
